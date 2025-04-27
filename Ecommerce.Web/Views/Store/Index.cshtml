@@ -1,0 +1,90 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Ecommerce.Entity.Models.StoreSearchParams
+@{
+    Layout = "_Layout";
+}
+
+<h2 class="pb-4 text-center">Products</h2>
+
+
+<form class="row g-3 mb-3">
+    <div class="col-lg-2 col-md-4">
+        <select class="form-select" name="brand" asp-for="Brand" onchange="this.form.submit()">
+            <option value="">All Brands</option>
+            <option value="Samsung">Samsung</option>
+            <option value="Apple">Apple</option>
+            <option value="Nokia">Nokia</option>
+            <option value="HP">HP</option>
+        </select>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <select class="form-select" name="category" asp-for="Category" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            <option value="Phones">Phones</option>
+            <option value="Computers">Computers</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Printers">Printers</option>
+            <option value="Cameras">Cameras</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    <div class="col-lg-2 col-md-4">
+        <select class="form-select" name="sort" asp-for="Sort" onchange="this.form.submit()">
+            <option value="newest">Order By Newest</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+        </select>
+    </div>
+    <div class="col-lg-6 col-md-12 d-flex">
+        <input class="form-control me-2" name="search" asp-for="Search" placeholder="Search by Name">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </div>
+</form>
+
+<div class="row mb-5 g-4">
+    @foreach (var product in ViewBag.Products)
+    {
+        <div class="col-lg-3 col-md-6">
+            <div class="card h-100 shadow-sm border-0 hover-zoom">
+                <div class="position-relative">
+                    <img src="/products/@product.ImageFileName" class="card-img-top p-3" alt="@product.Name"
+                         style="height: 220px; object-fit: contain;"/>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="text-muted mb-2">
+                        <small>Brand: <strong>@product.Brand</strong></small><br/>
+                        <small>Category: <strong>@product.Category</strong></small>
+                    </p>
+                    <h4 class="text-primary mt-auto">@(product.Price)৳</h4>
+                </div>
+                <div class="card-footer bg-transparent border-0 d-flex flex-column gap-2 p-3">
+                    <a class="btn btn-outline-primary btn-sm w-100"
+                       asp-controller="Store"
+                       asp-action="Details"
+                       asp-route-id="@product.Id">
+                        <i class="bi bi-eye"></i> View Details
+                    </a>
+                    <button type="button" class="btn btn-warning btn-sm w-100"
+                            onclick="addToCart(this, '@product.Id')">
+                        <i class="bi bi-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<nav>
+    <ul class="pagination">
+        @for(int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            string active = "";
+            if (i == ViewBag.PageIndex) active = "active";
+            <li class="page-item @active"><a class="page-link" asp-route-pageIndex="@i"
+                asp-route-search="@Model.Search" asp-route-brand="@Model.Brand" 
+               asp-route-category="@Model.Category" asp-route-sort="@Model.Sort">@i</a></li>
+        }
+    </ul>
+</nav>

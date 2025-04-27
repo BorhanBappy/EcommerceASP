@@ -1,0 +1,87 @@
+﻿@model Ecommerce.Entity.Models.ProfileModelView
+@using Ecommerce.Entity.Models
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var appUser = await UserManager.GetUserAsync(User);
+    string userRole = "";
+    if (User.IsInRole("Admin")) userRole = "Admin";
+    if (User.IsInRole("Client")) userRole = "Client";
+    if (User.IsInRole("Seller")) userRole = "Seller";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="card-title mb-4 text-center">👤 User Profile</h3>
+                    <hr/>
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class='alert alert-danger alert-dismissible fade show' role='alert'>
+                            <strong>@ViewBag.ErrorMessage</strong>
+                            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        </div>
+                    }
+                    else if (ViewBag.SuccessMessage != null)
+                    {
+                        <div class='alert alert-success alert-dismissible fade show' role='alert'>
+                            <strong>@ViewBag.SuccessMessage</strong>
+                            <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                        </div>
+                    }
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">🧾 First Name</div>
+                        <div class="col-sm-8">@appUser?.FirstName</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">🧾 Last Name</div>
+                        <div class="col-sm-8">@appUser?.LastName</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">📧 Email</div>
+                        <div class="col-sm-8">@appUser?.Email</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">📞 Phone</div>
+                        <div class="col-sm-8">@appUser?.PhoneNumber</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">🏠 Address</div>
+                        <div class="col-sm-8">@appUser?.Address</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">🔐 Role</div>
+                        <div class="col-sm-8">@userRole</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-semibold">📅 Created At</div>
+                        <div class="col-sm-8">@appUser?.CreatedAt.ToString("dd MMM yyyy")</div>
+                    </div>
+
+                    <div class="text-center mt-4">
+
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal">
+                            ✏️ Edit Profile
+                        </button>
+                        <a class="btn btn-warning px-4" asp-controller="Account" asp-action="Password">
+                            🔑 Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_EditProfilePartialView"/>

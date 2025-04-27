@@ -1,0 +1,43 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Ecommerce.ModelViews.LoginModelView
+
+@{
+    ViewBag.Title = "LoginPage";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col-md-4 mx-auto rounded border p-4">
+        <h2 class="text-center mb-3">Please Log In</h2>
+        <hr/>
+        
+        @if(ViewBag.ErrorMessage != null)
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>@ViewBag.ErrorMessage</strong> 
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        <form method="post">
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control"/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" type="password"/>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            @* RememberMe *@
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" asp-for="RememberMe"/>
+                <label class="form-check-label">Remember Me</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <div><a class="btn btn-link" asp-controller="Account" asp-action="ForgetPassword">Forgot your password? </a></div>
+        </form>
+    </div>
+</div>
