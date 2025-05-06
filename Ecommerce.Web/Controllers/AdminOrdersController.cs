@@ -1,6 +1,8 @@
 ﻿using Ecommerce.Entity.Models;
+using Ecommerce.Repository.Contracts;
 using Ecommerce.Repository.Core;
 using Ecommerce.Services;
+using Ecommerce.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,33 +13,17 @@ namespace Ecommerce.Controllers
     [Route("/Admin/Orders/{action=Index}/{id?}")]
     public class AdminOrdersController : Controller
     {
-        private readonly ApplicationDbContext context;
+        private readonly IOrdersService _ordersService;
         private readonly int pageSize = 5;
 
-        public AdminOrdersController(ApplicationDbContext context)
+        public AdminOrdersController(IOrdersService service)
         {
-            this.context = context;
+            _ordersService = service;
         }
 
-        public IActionResult Index(int pageIndex)
+        public async Task<IActionResult> Index(int pageIndex)
         {
-            IQueryable<Orders> query = context.Orders.Include(o => o.Client)
-                .Include(o => o.Items).OrderByDescending(o => o.Id.ToString());
-
-            if (pageIndex <= 0)
-            {
-                pageIndex = 1;
-            }
-
-
-            decimal count = query.Count();
-            int totalPages = (int)Math.Ceiling(count / pageSize);
-
-            query = query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
-
-
-            var orders = query.ToList();
-
+            var (orders, totalPages) = await _ordersService.GetAllOrders(pageIndex, pageSize);
             ViewBag.Orders = orders;
             ViewBag.PageIndex = pageIndex;
             ViewBag.TotalPages = totalPages;
@@ -46,27 +32,27 @@ namespace Ecommerce.Controllers
         }
 
 
-        public IActionResult Details(Guid id)
+        public async  Task<IActionResult> Details(Guid id)
         {
-            var order = context.Orders.Include(o => o.Client).Include(o => o.Items)
-                .ThenInclude(oi => oi.Product).FirstOrDefault(o => o.Id == id);
-
+            var order = await _ordersService.GetOrderDetails(id);
 
             if (order == null)
             {
                 return RedirectToAction("Index");
             }
+            ViewBag.NumOrders = _ordersService.NumOrders(id);
 
-
-            ViewBag.NumOrders = context.Orders.Where(o => o.ClientId == order.ClientId).Count();
 
             return View(order);
+
+
         }
 
 
-        public IActionResult Edit(Guid id, string? payment_status, string? order_status)
+        public async Task<IActionResult> Edit(Guid orderID, string? payment_status, string? order_status)
         {
-            var order = context.Orders.Find(id);
+            Console.WriteLine($"Edit called with orderID: {orderID}");
+            var order = await _ordersService.GetOrderDetails(orderID);
             if (order == null)
             {
                 return RedirectToAction("Index");
@@ -75,7 +61,7 @@ namespace Ecommerce.Controllers
 
             if (payment_status == null && order_status == null)
             {
-                return RedirectToAction("Details", new { id });
+                return RedirectToAction("Details", new { orderID });
             }
 
             if (payment_status != null)
@@ -87,11 +73,10 @@ namespace Ecommerce.Controllers
             {
                 order.OrderStatus = order_status;
             }
+            
+            await _ordersService.Update(order);
 
-            context.SaveChanges();
-
-
-            return RedirectToAction("Details", new { id });
+            return RedirectToAction("Details", new { orderID });
         }
     }
 }

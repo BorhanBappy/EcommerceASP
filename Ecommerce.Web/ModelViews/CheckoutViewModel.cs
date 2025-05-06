@@ -2,7 +2,7 @@
 
 namespace Ecommerce.Entity.Models;
 
-public class CheckoutDto
+public class CheckoutViewModel
 {
     [Required(ErrorMessage = "The Delivery Address is required.")]
     [MaxLength(200)]

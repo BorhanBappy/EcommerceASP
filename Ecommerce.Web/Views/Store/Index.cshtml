@@ -1,12 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
-@model Ecommerce.Entity.Models.StoreSearchParams
+@model Ecommerce.Common.Common.StoreSearchParams
 @{
     Layout = "_Layout";
 }
 
 <h2 class="pb-4 text-center">Products</h2>
-
-
 <form class="row g-3 mb-3">
     <div class="col-lg-2 col-md-4">
         <select class="form-select" name="brand" asp-for="Brand" onchange="this.form.submit()">

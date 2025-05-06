@@ -1,6 +1,6 @@
 ﻿// File: Ecommerce.Services/ProductService.cs
 
-using Ecommerce.Common.DTO;
+using Ecommerce.Common.Common;
 using Ecommerce.Entity.Models;
 using Ecommerce.Repository.Contracts;
 using Ecommerce.Services.Contracts;

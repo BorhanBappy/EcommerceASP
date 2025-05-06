@@ -1,11 +1,9 @@
-﻿@model Ecommerce.Entity.Models.CheckoutDto
-
+﻿@model Ecommerce.Entity.Models.CheckoutViewModel
 
 <div class="row border rounded-3">
     <div class="col-md-8 p-3">
         <h4>Shopping Cart</h4>
         <hr/>
-
 
         @if (ViewBag.ErrorMessage != null)
         {
@@ -19,7 +17,7 @@
             <tbody>
             @foreach (var item in ViewBag.CartItems)
             {
-                <tr>
+                <tr id="row-@item.Product.Id">
                     <td>
                         <img src="/products/@item.Product.ImageFileName" width="100" class="rounded" alt="...">
                     </td>
@@ -28,19 +26,21 @@
                         <p>
                             Brand: @item.Product.Brand<br>
                             Category: @item.Product.Category<br>
-                            Price: @(item.Product.Price)৳
+                            Price: <span id="price-@item.Product.Id">@item.Product.Price</span>৳
                         </p>
                     </td>
                     <td style="white-space:nowrap">
                         <button type="button" class="btn btn-outline-secondary btn-sm"
                                 onclick="decrease('@item.Product.Id')">-
                         </button>
-                        <span class="border rounded-3 p-2 m-1">@item.Quantity</span>
+                        <span id="quantity-@item.Product.Id" class="border rounded-3 p-2 m-1">@item.Quantity</span>
                         <button type="button" class="btn btn-outline-secondary btn-sm"
                                 onclick="increase('@item.Product.Id')">+
                         </button>
                     </td>
-                    <td>@(item.UnitPrice * item.Quantity)৳</td>
+                    <td>
+                        <span id="total-@item.Product.Id">@(item.UnitPrice * item.Quantity)</span>৳
+                    </td>
                     <td>
                         <i class="bi bi-trash text-danger h4" style="cursor: pointer"
                            onclick="remove('@item.Product.Id')"></i>
@@ -50,17 +50,16 @@
             </tbody>
         </table>
     </div>
+
     <div class="col-md-4">
         <div class="text-white rounded my-2 p-3" style="background-color: #08618d;">
             <h4>Order Summary</h4>
             <hr/>
 
-
             @using Ecommerce.Entity.Models
             @using Microsoft.AspNetCore.Identity
             @using Microsoft.AspNetCore.Mvc.TagHelpers
             @inject SignInManager<ApplicationUser> SignInManager
-
 
             @if (!SignInManager.IsSignedIn(User))
             {
@@ -69,19 +68,17 @@
                         <p>Subtotal:</p>
                     </div>
                     <div class="col">
-                        <p class="text-end">@(ViewBag.Subtotal)৳</p>
+                        <p class="text-end" id="subtotal">@ViewBag.Subtotal৳</p>
                     </div>
                 </div>
-
 
                 <div class="row">
                     <div class="col d-grid">
                         <a class="btn btn-light" asp-controller="Account" asp-action="Register">Register</a>
                     </div>
                     <div class="col d-grid">
-                        <a class="btn btn-outline-light" href="@Url.Action("Login", "Account", new { returnUrl = "Cart" })">
-                            Login
-                        </a>
+                        <a class="btn btn-outline-light"
+                           href="@Url.Action("Login", "Account", new { returnUrl = "Cart" })">Login</a>
                     </div>
                 </div>
             }
@@ -105,13 +102,12 @@
 
                     <hr>
 
-
                     <div class="row">
                         <div class="col">
                             <p>Subtotal:</p>
                         </div>
                         <div class="col">
-                            <p class="text-end">@(ViewBag.Subtotal)৳</p>
+                            <p class="text-end" id="subtotal">@ViewBag.Subtotal৳</p>
                         </div>
                     </div>
 
@@ -120,7 +116,7 @@
                             <p>Shipping:</p>
                         </div>
                         <div class="col">
-                            <p class="text-end">@(ViewBag.ShippingFee)৳</p>
+                            <p class="text-end" id="shipping">@ViewBag.ShippingFee৳</p>
                         </div>
                     </div>
 
@@ -129,10 +125,9 @@
                             <p>Total:</p>
                         </div>
                         <div class="col">
-                            <p class="text-end">@(ViewBag.Total)৳</p>
+                            <p class="text-end" id="total">@ViewBag.Total৳</p>
                         </div>
                     </div>
-
 
                     <div class="d-grid">
                         <button class="btn btn-outline-light" type="submit">Checkout</button>

@@ -1,5 +1,5 @@
 ﻿using Ecommerce.Entity.Models;
-using Ecommerce.Models;
+using Ecommerce.Entity.Models;
 using Ecommerce.ModelViews;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

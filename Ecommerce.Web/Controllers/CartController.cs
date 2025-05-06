@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Entity.Models;
 using Ecommerce.Repository.Core;
 using Ecommerce.Services;
+using Ecommerce.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,28 +10,29 @@ namespace Ecommerce.Controllers;
 
 public class CartController : Controller
     {
-        private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly decimal shippingFee;
+        private readonly decimal _shippingFee;
+        private readonly ICartService _cartService;
+        private readonly IOrdersService _ordersService;
 
-        public CartController(ApplicationDbContext context, IConfiguration configuration
-            , UserManager<ApplicationUser> userManager)
+        public CartController(ICartService cartService,IOrdersService ordersService, IConfiguration configuration, UserManager<ApplicationUser> userManager)
         {
-            this.context = context;
+            _ordersService = ordersService;
+            _cartService = cartService;
             this.userManager = userManager;
-            shippingFee = configuration.GetValue<decimal>("CartSettings:ShippingFee");
+            _shippingFee = configuration.GetValue<decimal>("CartSettings:ShippingFee");
         }
 
-        public IActionResult Index()
+        public async Task<ViewResult> Index()
         {
-            List<OrderItems> cartItems = CartHelper.GetCartItems(Request, Response, context);
-            decimal subtotal = CartHelper.GetSubtotal(cartItems);
+            var cartItems = await _cartService.GetCartItemsAsync(Request, Response);
+            var subtotal = _cartService.GetSubtotal(cartItems);
 
 
             ViewBag.CartItems = cartItems;
-            ViewBag.ShippingFee = shippingFee;
+            ViewBag.ShippingFee = _shippingFee;
             ViewBag.Subtotal = subtotal;
-            ViewBag.Total = subtotal + shippingFee;
+            ViewBag.Total = subtotal + _shippingFee;
 
             return View();
         }
@@ -38,16 +40,16 @@ public class CartController : Controller
 
         [Authorize]
         [HttpPost]
-        public IActionResult Index(CheckoutDto model)
+        public async Task<IActionResult> Index(CheckoutViewModel model)
         {
-            List<OrderItems> cartItems = CartHelper.GetCartItems(Request, Response, context);
-            decimal subtotal = CartHelper.GetSubtotal(cartItems);
+            var cartItems = await _cartService.GetCartItemsAsync(Request, Response);
+            var subtotal = _cartService.GetSubtotal(cartItems);
 
 
             ViewBag.CartItems = cartItems;
-            ViewBag.ShippingFee = shippingFee;
+            ViewBag.ShippingFee = _shippingFee;
             ViewBag.Subtotal = subtotal;
-            ViewBag.Total = subtotal + shippingFee;
+            ViewBag.Total = subtotal + _shippingFee;
 
             if (!ModelState.IsValid)
             {
@@ -76,10 +78,10 @@ public class CartController : Controller
 
 
 
-        public IActionResult Confirm()
+        public async Task<IActionResult> Confirm()
         {
-            List<OrderItems> cartItems = CartHelper.GetCartItems(Request, Response, context);
-            decimal total = CartHelper.GetSubtotal(cartItems) + shippingFee;
+            var cartItems = await _cartService.GetCartItemsAsync(Request, Response);
+            decimal total =_cartService.GetSubtotal(cartItems) + _shippingFee;
             int cartSize = 0;
             foreach (var item in cartItems)
             {
@@ -110,10 +112,10 @@ public class CartController : Controller
         [HttpPost]
         public async Task<IActionResult> Confirm(Guid any)
         {
-            var cartItems = CartHelper.GetCartItems(Request, Response, context);
+            var cartItems = await _cartService.GetCartItemsAsync(Request, Response);
 
-            string deliveryAddress = TempData["DeliveryAddress"] as string ?? "";
-            string paymentMethod = TempData["PaymentMethod"] as string ?? "";
+            var deliveryAddress = TempData["DeliveryAddress"] as string ?? "";
+            var paymentMethod = TempData["PaymentMethod"] as string ?? "";
             TempData.Keep();
 
             if (cartItems.Count == 0 || deliveryAddress.Length == 0 || paymentMethod.Length == 0)
@@ -132,7 +134,7 @@ public class CartController : Controller
             {
                 ClientId = appUser.Id,
                 Items = cartItems,
-                ShippingFee = shippingFee,
+                ShippingFee = _shippingFee,
                 DeliveryAddress = deliveryAddress,
                 PaymentMethod = paymentMethod,
                 PaymentStatus = "pending",
@@ -140,9 +142,8 @@ public class CartController : Controller
                 OrderStatus = "created",
                 CreatedAt = DateTime.Now,
             };
-
-            context.Orders.Add(order);
-            context.SaveChanges();
+            await _ordersService.Add(order);
+           
 
 
             // delete the shopping cart cookie

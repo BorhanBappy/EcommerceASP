@@ -217,7 +217,7 @@
             <div class="modal-body">
                 
                 <form method="get" asp-controller="AdminOrders" asp-action="Edit">
-                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="orderID" value="@Model.Id" />
                     <label>Payment Status</label>
                     <select class="form-select mb-2" name="payment_status" asp-for="PaymentStatus">
                         <option value="pending">pending</option>
@@ -248,7 +248,7 @@
             <div class="modal-body">
                 
                 <form method="get" asp-controller="AdminOrders" asp-action="Edit">
-                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="orderID" value="@Model.Id" />
                     <label>Order Status</label>
                     <select class="form-select mb-2" name="order_status" asp-for="OrderStatus">
                         <option value="created">created</option>

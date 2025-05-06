@@ -11,5 +11,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ImageFileName, opt => opt.Ignore());
 
         CreateMap<Product, ProductModelViews>();
+        // CreateMap<Orders,
     }
 }

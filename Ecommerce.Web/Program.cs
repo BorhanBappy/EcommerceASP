@@ -1,6 +1,6 @@
 using brevo_csharp.Client;
 using Ecommerce.Entity.Models;
-using Ecommerce.Models;
+using Ecommerce.Entity.Models;
 using Ecommerce.Repository;
 using Ecommerce.Repository.Contracts;
 using Ecommerce.Repository.Core;
@@ -28,9 +28,13 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-Configuration.Default.ApiKey.Add("api-key", builder.Configuration["BrevoSettings:ApiKey"]);
+// Configuration.Default.ApiKey.Add("api-key", builder.Configuration["BrevoSettings:ApiKey"]);
 builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+builder.Services.AddScoped<IOrdersService, OrdersService>();
+builder.Services.AddScoped<ICartService, CartService>();
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

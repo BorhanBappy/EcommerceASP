@@ -1,6 +1,6 @@
 ﻿// File: Ecommerce.Services/Contracts/IProductService.cs
 
-using Ecommerce.Common.DTO;
+using Ecommerce.Common.Common;
 using Ecommerce.Entity.Models;
 using Ecommerce.Services.Core;
 using Microsoft.AspNetCore.Http;

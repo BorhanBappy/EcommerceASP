@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Common.DTO;
+﻿namespace Ecommerce.Common.Common;
 
 public class ProductSearchParams
 {

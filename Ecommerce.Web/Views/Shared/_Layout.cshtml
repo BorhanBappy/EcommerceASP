@@ -13,44 +13,46 @@
 <body>
 
 <script>
-    function getShoppingCart() {
-        // document.cookie contains all the cookies of our website with the following format
-        // cookie1=value1; cookie2=value2; cookie3=value3;
+    function updateCartSize(cart) {
+        let cartSize = 0;
+        for (const quantity of Object.values(cart)) {
+            if (!isNaN(quantity)) {
+                cartSize += Number(quantity);
+            }
+        }
+        document.getElementById("CartSize").innerHTML = cartSize;
+    }
 
+    function getShoppingCart() {
         const cookieName = "shopping_cart";
         let cookiesArray = document.cookie.split(';');
 
         for (let i = 0; i < cookiesArray.length; i++) {
-            let cookie = cookiesArray[i];
-            if (cookie.includes(cookieName)) {
+            let cookie = cookiesArray[i].trim();
+            if (cookie.startsWith(cookieName + "=")) {
                 let cookie_value = cookie.substring(cookie.indexOf("=") + 1);
-
                 try {
-                    let cart = JSON.parse(atob(cookie_value));
-                    return cart;
-                } catch (exception) {
+                    return JSON.parse(atob(cookie_value));
+                } catch (e) {
                     break;
                 }
             }
         }
-
         return {};
     }
 
-
     function saveCart(cart) {
-        let cartStr = btoa(JSON.stringify(cart))
-
-        // save cookie
+        let cartStr = btoa(JSON.stringify(cart));
         let d = new Date();
-        d.setDate(d.getDate() + 365); // this cookie expires after 365 days (1 year)
+        d.setDate(d.getDate() + 365);
         let expires = d.toUTCString();
         document.cookie = "shopping_cart=" + cartStr + ";expires=" + expires + ";path=/; SameSite=Strict; Secure";
     }
-
-
     function addToCart(button, id) {
+        console.log("🛒 Add to Cart clicked for ID:", id);
+
         let cart = getShoppingCart();
+        console.log("📦 Current addToCart:", cart);
 
         let quantity = cart[id]
         if (isNaN(quantity)) {
@@ -71,53 +73,70 @@
             cartSize += Number(quantity)
         }
 
-        document.getElementById("CartSize").innerHTML = cartSize
+        updateCartSize(cart);
     }
 
 
-    function increase(id) {
-        let cart = getShoppingCart();
+    function updateCartUI(cart) {
+        let subtotal = 0;
+        for (const [id, quantity] of Object.entries(cart)) {
+            const priceEl = document.getElementById(`price-${id}`);
+            const quantityEl = document.getElementById(`quantity-${id}`);
+            const totalEl = document.getElementById(`total-${id}`);
 
-        let quantity = cart[id]
-        if (isNaN(quantity)) {
-            // quantity is Not a Number => set it to 1
-            cart[id] = 1
-        } else {
-            cart[id] = Number(quantity) + 1;
+            if (!priceEl || !quantityEl || !totalEl) {
+                console.warn(`Missing elements for product ID: ${id}`);
+                continue; // skip this item if any element is missing
+            }
+
+            const price = parseFloat(priceEl.innerText);
+            quantityEl.innerText = quantity;
+            totalEl.innerText = (price * quantity).toFixed(2);
+            subtotal += price * quantity;
         }
 
+        const subtotalEl = document.getElementById("subtotal");
+        const totalEl = document.getElementById("total");
+
+        if (subtotalEl) subtotalEl.innerText = `${subtotal.toFixed(2)}৳`;
+        if (totalEl) totalEl.innerText = `${(subtotal + 60).toFixed(2)}৳`; // shipping fixed
+    }
+
+    function increase(id) {
+        let cart = getShoppingCart();
+        cart[id] = (isNaN(cart[id]) ? 1 : Number(cart[id]) + 1);
         saveCart(cart);
-        location.reload()
+        updateCartUI(cart);
+        updateCartSize(cart);
+
     }
 
     function decrease(id) {
         let cart = getShoppingCart();
+        if (!isNaN(cart[id]) && cart[id] > 1) {
+            cart[id] = Number(cart[id]) - 1;
+            saveCart(cart);
+            updateCartUI(cart);
+            updateCartSize(cart);
 
-        let quantity = cart[id]
-        if (isNaN(quantity)) {
-            // quantity is Not a Number => exit
-            return
-        }
-
-        quantity = Number(quantity)
-
-        if (quantity > 1) {
-            cart[id] = quantity - 1
-            saveCart(cart)
-            location.reload()
         }
     }
 
     function remove(id) {
         let cart = getShoppingCart();
-
         if (cart[id]) {
-            delete cart[id]
-            saveCart(cart)
-            location.reload()
+            delete cart[id];
+            saveCart(cart);
+            document.getElementById(`row-${id}`)?.remove();
+            updateCartUI(cart);
+            updateCartSize(cart);
+
         }
     }
+
 </script>
+
+
 
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">

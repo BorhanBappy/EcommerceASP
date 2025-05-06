@@ -1,4 +1,4 @@
-﻿namespace Ecommerce.Entity.Models;
+﻿namespace Ecommerce.Common.Common;
 
 public class StoreSearchParams
 {

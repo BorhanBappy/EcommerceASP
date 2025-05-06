@@ -1,4 +1,4 @@
-﻿using Ecommerce.Common.DTO;
+﻿using Ecommerce.Common.Common;
 using Ecommerce.Entity.Models;
 using Ecommerce.Services;
 using Ecommerce.Services.Contracts;

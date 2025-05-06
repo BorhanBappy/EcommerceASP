@@ -1,7 +1,8 @@
 ﻿using System.Text.Json;
 using Ecommerce.Entity.Models;
-using Ecommerce.Models;
+using Ecommerce.Entity.Models;
 using Ecommerce.Repository.Core;
+using Ecommerce.Services.Contracts;
 
 namespace Ecommerce.Services;
 
@@ -48,8 +49,8 @@ public class CartHelper
         return cartSize;
     }
 
-    public static List<OrderItems> GetCartItems(HttpRequest request, HttpResponse response,
-        ApplicationDbContext context)
+    public static async Task<List<OrderItems>> GetCartItems(HttpRequest request, HttpResponse response,
+        IProductService service)
     {
         var cartItems = new List<OrderItems>();
 
@@ -58,7 +59,7 @@ public class CartHelper
         {
             Guid productId = pair.Key;
             int quantity = pair.Value;
-            var product = context.Products.Find(productId);
+            var product = await service.GetById(productId);
             if (product == null) continue;
 
             var item = new OrderItems

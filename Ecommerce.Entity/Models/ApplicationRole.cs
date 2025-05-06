@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Ecommerce.Models;
+namespace Ecommerce.Entity.Models;
 
-public class ApplicationRole:IdentityRole<Guid>
-{
-    
-}
+public class ApplicationRole:IdentityRole<Guid>;

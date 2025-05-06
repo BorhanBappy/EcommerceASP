@@ -1,6 +1,7 @@
 ﻿
 using Ecommerce.Entity.Models;
 using Ecommerce.Repository.Core;
+using Ecommerce.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,14 @@ namespace Ecommerce.Controllers
     [Route("/Client/Orders/{action=Index}/{id?}")]
     public class ClientOrdersController : Controller
     {
-        private readonly ApplicationDbContext context;
+        // private readonly ApplicationDbContext context;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly int pageSize = 5;
+     private readonly IOrdersService _ordersService;
 
-        public ClientOrdersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public ClientOrdersController(    IOrdersService ordersService, UserManager<ApplicationUser> userManager)
         {
-            this.context = context;
+            _ordersService = ordersService;
             this.userManager = userManager;
         }
 
@@ -30,23 +32,11 @@ namespace Ecommerce.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            IQueryable<Orders> query = context.Orders
-                .Include(o => o.Items).OrderByDescending(o => o.Id)
-                .Where(o => o.ClientId.ToString() == currentUser.Id.ToString());
+            
 
-            if (pageIndex <= 0)
-            {
-                pageIndex = 1;
-            }
+         var (orders,totalPages) = await _ordersService.GetAllByUserId(currentUser.Id, pageIndex, pageSize);
 
 
-            decimal count = query.Count();
-            int totalPages = (int)Math.Ceiling(count / pageSize);
-
-            query = query.Skip((pageIndex - 1) * pageSize).Take(pageSize);
-
-
-            var orders = query.ToList();
 
             ViewBag.Orders = orders;
             ViewBag.PageIndex = pageIndex;
@@ -64,10 +54,8 @@ namespace Ecommerce.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var order = context.Orders.Include(o => o.Items)
-                .ThenInclude(oi => oi.Product)
-                .Where(o => o.ClientId == currentUser.Id).FirstOrDefault(o => o.Id.ToString() == id.ToString());
-
+           
+            var order= await _ordersService.GetUserOrder(currentUser.Id,id );
 
             if (order == null)
             {

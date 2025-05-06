@@ -1,5 +1,5 @@
 ﻿using Ecommerce.Entity.Models;
-using Ecommerce.Models;
+using Ecommerce.Entity.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Ecommerce.Repository.Seed;
